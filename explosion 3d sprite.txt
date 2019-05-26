@@ -1,0 +1,32 @@
+# CodeSkulptor runs Python programs in your browser.
+# Click the upper left button to run this simple demo.
+
+# CodeSkulptor runs in Chrome 18+, Firefox 11+, and Safari 6+.
+# Some features may work in other browsers, but do not expect
+# full functionality.  It does NOT run in Internet Explorer.
+
+import simplegui
+x=32
+y=32
+pic=simplegui.load_image('D:/sprite images/explosion.png')
+def tick():
+    global x,y
+    x+=64
+    x%=320
+    if x==288:
+        y+=64
+        y%=320
+    print x,y
+# Handler to draw on canvas
+def draw(canvas):
+    global x,y
+    canvas.draw_image(pic,[x,y],[64,64],[150,150],[64,64])
+
+# Create a frame and assign callbacks to event handlers
+frame = simplegui.create_frame("Home", 300, 300)
+frame.set_draw_handler(draw)
+timer=simplegui.create_timer(50,tick)
+timer.start()
+
+# Start the frame animation
+frame.start()

@@ -1,0 +1,98 @@
+import simplegui,random,math
+H=600
+W=500
+bubbles=[]
+score=0.0
+outof=0.0
+tim=0
+seconds=0
+minu=0
+gamecondition=False
+level=1
+startmessage=''
+c=0.0
+def tick():
+    global seconds,tim,minu,level,gamecondition,startmessage,c
+    if gamecondition:
+        tim+=1
+        seconds=tim%60
+        minu=tim/60
+    if minu==2:
+        level=2
+    if minu==4:
+        level=3
+    if minu==5:
+        gamecondition=False
+        startmessage='Score is: '+str(score)+' Out of:'+str(outof)+' timer: '+str(minu)+':'+str(seconds)+' Percentage score: '+str((c)*100)
+def updatescore():
+    global score
+    if gamecondition:
+        score+=1
+def restart():
+    global bubbles,score,outof,tim,seconds,minu,gamecondition
+    bubbles=[]
+    score=0.0
+    outof=0.0
+    tim=0
+    seconds=0
+    minu=0
+    gamecondition=True
+def msclick(ps):
+    global bubbles,gamecondition
+    if gamecondition:
+        for b in bubbles:
+            if b[1]:
+                l=math.sqrt(((ps[0]-b[0].pos[0])**2)+((ps[1]-b[0].pos[1])**2))
+
+                if l<=b[0].rad:
+                    b[1]=False
+                    updatescore()
+class Bubble:
+    def __init__(self,pos,rad):
+        global level
+        self.pos=pos
+        self.rad=rad
+        if level==1:
+            self.vel=random.randrange(1,3)*random.random()
+        elif level==2:
+            self.vel=random.randrange(3,6)*random.random()
+        elif level==3:
+            self.vel=random.randrange(6,10)*random.random()
+    def update(self):
+        self.pos[1]-=self.vel
+    def draw(self,canvas):
+        canvas.draw_circle(self.pos,self.rad,2,'aqua')
+def draw(canvas):
+    global bubbles,score,outof,seconds,minu,gamecondition,startmessage,level,c
+    if gamecondition:
+        for b in bubbles:
+            if b[1]:
+                b[0].draw(canvas)
+                b[0].update()
+                if b[0].pos[1]<0:
+                    bubbles.remove(b)
+                if not b[1]:
+                    bubbles.remove(b)
+        if random.random()<0.05:
+            
+            bubbles.append([Bubble([W*random.random(),H],random.randrange(10,30)),True])
+            outof+=1
+        print score,outof
+        if outof==0:
+            c=0.0
+        else:
+            c=float(score/outof)
+        
+        canvas.draw_text('Score is: '+str(score)+' Out of:'+str(outof)+' timer: '+str(minu)+':'+str(seconds)+' Percentage score: '+str((c)*100)+' Level: '+str(level),[0,H+30],20,'white')
+    else:
+        canvas.draw_text('BUBBLE GAME',[W/2-120,H/2],40,'White')
+        canvas.draw_text(startmessage,[W/2-120,H/2+10],20,'pink')
+frame=simplegui.create_frame('bubbles',W+150,H+30)
+frame.set_canvas_background('blue')
+frame.set_draw_handler(draw)
+timer=simplegui.create_timer(1000,tick)
+timer.start()
+frame.add_button('Start',restart)
+
+frame.set_mouseclick_handler(msclick)
+frame.start()

@@ -1,0 +1,182 @@
+import simplegui,math,random
+ship_pic=simplegui.load_image('D:/sprite images/double_ship.png')
+back_pic=simplegui.load_image('D:/sprite images/background.png')
+explosion_pic=simplegui.load_image('D:/sprite images/explosion2.png')
+stone_pic=simplegui.load_image('D:/sprite images/asteroid_blue.png')
+st=[[[0,0],45],[[400,0],90],[[200,0],50],[[800,300],180],[[400,600],270],[[600,0],120],[[600,600],240],[[400,600],270],[[200,600],300],[[0,600],315],[[0,300],0]] 
+stone_list=[]
+bullet_list=[]
+expo_list=[]
+score=0
+lives=3
+gamecondition=True
+class Ship:
+    def __init__(self,pos,pic):
+
+        self.pos=pos[:]
+        self.pic=pic
+        self.vel=[0,0]
+        self.angle=0
+        self.boost=False
+        self.fuel=1000
+        self.bullets=100
+        self.vel=0
+        self.angle_vel=0
+    def change_angle(self,ang):
+        self.angle+=ang
+    def forward(self):
+        self.pos[0]+=(math.cos(math.radians(self.angle)))*self.vel
+        self.pos[1]+=(math.sin(math.radians(self.angle)))*self.vel
+        self.angle+=self.angle_vel
+    def change_boost(self,con):
+        self.boost=con
+    def draw_ship(self,canvas):
+        if self.boost:
+            canvas.draw_image(self.pic,[135,45],[90,90],self.pos,[90,90],math.radians(self.angle))
+        else:
+            canvas.draw_image(self.pic,[45,45],[90,90],self.pos,[90,90],math.radians(self.angle))
+    def reset_ship(self):
+        self.__init__([400,300],self.pic)
+        
+class Stone:
+    def __init__(self,pic,pos,ang,rotvel,vel):
+        self.pic=pic
+        self.pos=pos
+        self.vel_angle=ang
+        self.rot_angle=0
+        self.rot_vel=rotvel
+        self.vel=vel
+    def update(self):
+        self.pos[0]+=math.cos(math.radians(self.vel_angle))*self.vel
+        self.pos[1]+=math.sin(math.radians(self.vel_angle))*self.vel
+        self.rot_angle+=self.rot_vel
+    def draw_stone(self,canvas):
+        canvas.draw_image(self.pic,[45,45],[90,90],self.pos,[90,90],math.radians(self.rot_angle))
+class Bullet:
+    def __init__(self,pos,angle):
+        self.pos=pos
+        self.angle=angle
+    def update(self):
+        self.pos[0]+=math.cos(math.radians(self.angle))*10
+        self.pos[1]+=math.sin(math.radians(self.angle))*10
+    def draw_bullet(self,canvas):
+        canvas.draw_circle(self.pos,3,1,'white','white')
+class Explosion:
+    def __init__(self,pic,pos):
+        self.pic=pic
+        self.pos=pos
+        self.img=1
+        self.draw_con=True
+    def update(self):
+        self.img+=1
+    def draw_explosion(self,canvas):
+        print 'ok'
+        canvas.draw_circle(self.pos,self.img,3,'orange','orange')
+        if self.img>30:
+            self.draw_con=False
+        
+
+ship=Ship([400,300],ship_pic)
+def kd(k):
+    global bullet_list
+    if simplegui.KEY_MAP['w']==k:
+        ship.vel=3
+        ship.change_boost(True)
+        ship.fuel-=1
+    if simplegui.KEY_MAP['s']==k:
+        ship.vel=-3
+        ship.change_boost(True)
+        ship.fuel-=1
+    if simplegui.KEY_MAP['d']==k:
+        ship.angle_vel=2
+    if simplegui.KEY_MAP['a']==k:
+        ship.angle_vel=-2
+    if simplegui.KEY_MAP['space']==k:
+        bullet_list.append(Bullet(ship.pos[:],ship.angle))
+        ship.bullets-=1
+        
+def ku(k):
+    if simplegui.KEY_MAP['w']==k:
+        ship.vel=0
+        ship.change_boost(False)
+    if simplegui.KEY_MAP['s']==k:
+        ship.vel=0
+        ship.change_boost(False)
+    if simplegui.KEY_MAP['d']==k:
+        ship.angle_vel=0
+    if simplegui.KEY_MAP['a']==k:
+        ship.angle_vel=0
+def tick():
+    for a in expo_list:
+        a.update()
+def draw(canvas):
+    global st,stone_list,bullet_list,expo_list,score,ship,score,lives,gamecondition
+    if gamecondition:
+        canvas.draw_image(back_pic,[400,300],[800,600],[400,300],[800,600])
+        ship.draw_ship(canvas)
+        ship.forward()
+        if random.random()<0.007:
+            a=random.choice(st)
+            s=Stone(stone_pic,a[0][:],a[1],random.randint(0,2),random.randint(1,2))
+            stone_list.append([s,True,0])
+        for a in stone_list:
+            if a[1]:
+                a[0].draw_stone(canvas)
+                a[0].update()
+                if ship.pos[0]>a[0].pos[0]-45 and ship.pos[0]<a[0].pos[0]+45 and ship.pos[1]>a[0].pos[1]-45 and ship.pos[1]<a[0].pos[1]+45:
+                    stone_list.remove(a)
+                    lives-=1
+                    ship.reset_ship()
+            if a[1]==False:
+                expo_list.append(Explosion(explosion_pic,a[0].pos[:]))
+                stone_list.remove(a)
+
+        for a in expo_list:
+            if a.draw_con:
+                a.draw_explosion(canvas)
+
+            if a.draw_con==False:
+                expo_list.remove(a)
+        if ship.fuel<1 or ship.bullets<0:
+            ship.reset_ship()
+            lives-=1
+        for a in bullet_list:
+            a.draw_bullet(canvas)
+            a.update()
+            
+        for a in bullet_list:
+            for b in stone_list:
+                if a.pos[0]>b[0].pos[0]-45 and a.pos[0]<b[0].pos[0]+45 and a.pos[1]>b[0].pos[1]-45 and a.pos[1]<b[0].pos[1]+45:
+                    bullet_list.remove(a)
+                    b[1]=False
+                    score+=1
+        if lives<1:
+            gamecondition=False
+        canvas.draw_text('Score: '+str(score),[300,40],30,'white')
+        canvas.draw_text('Fuel: '+str(ship.fuel)+' Bullets: '+str(ship.bullets),[500,40],20,'white')
+        canvas.draw_text('Lives: '+str(lives),[5,30],20,'white')
+    else:
+        canvas.draw_text('GAME OVER',[200,350],30,'white')
+        canvas.draw_text('your score: '+str(score),[200,390],20,'white')
+  
+        
+        
+def rest():
+    global st,stone_list,bullet_list,expo_list,score,ship,score,bullets,fuel,lives,gamecondition
+    stone_list=[]
+    bullet_list=[]
+    expo_list=[]
+    score=0
+    lives=3
+    ship.reset_ship()
+    gamecondition=True
+
+        
+frame=simplegui.create_frame('space ship game',800,600)
+frame.add_button('Restart',rest)
+frame.set_keyup_handler(ku)
+frame.set_keydown_handler(kd)
+timer=simplegui.create_timer(5,tick)
+timer.start()
+frame.set_draw_handler(draw)
+frame.start()

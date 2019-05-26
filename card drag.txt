@@ -1,0 +1,27 @@
+# CodeSkulptor runs Python programs in your browser.
+# Click the upper left button to run this simple demo.
+
+# CodeSkulptor runs in Chrome 18+, Firefox 11+, and Safari 6+.
+# Some features may work in other browsers, but do not expect
+# full functionality.  It does NOT run in Internet Explorer.
+
+import simplegui
+pic=simplegui.load_image('D:/sprite images/cards2.png')
+pos=[400,400]
+
+def msdrag(po):
+    global pos
+    if pos[0]>po[0]-50 and pos[0]<po[0]+50 and pos[1]>po[1]-67 and pos[1]<po[1]+67:
+        pos=po
+    
+# Handler to draw on canvas
+def draw(canvas):
+    global pos
+    canvas.draw_image(pic,[50,67],[100,134],pos,[100,134])
+# Create a frame and assign callbacks to event handlers
+frame = simplegui.create_frame("Home", 800,800)
+frame.set_mousedrag_handler(msdrag)
+frame.set_draw_handler(draw)
+
+# Start the frame animation
+frame.start()

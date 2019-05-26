@@ -1,0 +1,231 @@
+import simplegui,random
+player_pic=simplegui.load_image('D:/sprite images/walking_sprite.png')
+back_pic=simplegui.load_image('D:/sprite images/pang_back.png')
+fire_sound=simplegui.load_sound('D:/codeskulptre music/Bow_Fire.mp3')
+pop_sound=simplegui.load_sound('D:/codeskulptre music/pop sound.mp3')
+level_up_sound=simplegui.load_sound('D:/codeskulptre music/power up.mp3')
+evil_sound=simplegui.load_sound('D:/codeskulptre music/evil laugh.mp3')
+buzzer_sound=simplegui.load_sound('D:/codeskulptre music/buzzer.mp3')
+ball_size={1:50,2:30,3:20,4:10}
+bubble_list=[]
+bow_list=[]
+level=1
+gamecondition=False
+message='START GAME'
+time=0
+second_message='use a-left d-right and space-fire'
+
+def bubble_update():
+    global bubble_list
+    for a in bubble_list:
+        a.tick()
+def update_maintime():
+    global time,gamecondition,message,buzzer_sound
+    time+=1
+    if level==1 and time>60:
+        buzzer_sound.rewind()
+        buzzer_sound.play()
+        gamecondition=False
+        message='TIME UP'
+    elif level==2 and time>120:
+        buzzer_sound.rewind()
+        buzzer_sound.play()
+        gamecondition=False
+        message='TIME UP'
+    elif level==3 and time>180:
+        buzzer_sound.rewind()
+        buzzer_sound.play()
+        gamecondition=False
+        message='TIME UP'
+    
+class Bubble:
+    def __init__(self,siz,pos,vel):
+        global ball_size
+        self.pos=pos[:]
+        self.vel=vel[:]
+        self.size=siz
+        self.radius=ball_size[siz]
+        self.col=random.choice(['red','aqua','pink','orange','yellow','purple','green','blue','violet','grey'])
+        self.print_con=True
+    def tick(self):
+        self.vel[1]+=0.05
+        self.vel[1]*=0.99995
+        self.pos[0]+=self.vel[0]
+        self.pos[1]+=self.vel[1]
+        
+        if self.pos[1]>0+self.radius and self.pos[1]>580-self.radius:
+            self.vel[1]=(self.vel[1]+0.05)*-1
+            
+        if self.pos[0]>800-self.radius or self.pos[0]<0+self.radius:
+            self.vel[0]*=-1
+    def draw_bubble(self,canvas):
+        if self.print_con:
+            canvas.draw_circle(self.pos,self.radius,1,self.col,self.col)
+class Bow:
+    def __init__(self,pos):
+        self.p_pos=pos[:]
+        self.pos=pos[:]
+        self.print_con=True
+    def update(self):
+        self.pos[1]-=10
+        if self.pos[1]<150:
+            self.print_con=False
+    def draw_bow(self,canvas):
+        if self.print_con:
+            canvas.draw_line(self.p_pos,self.pos,5,'white')
+            canvas.draw_line(self.pos,[self.pos[0]+10,self.pos[1]+10],5,'white')
+            canvas.draw_line(self.pos,[self.pos[0]-10,self.pos[1]+10],5,'white')
+class Player:
+    def __init__(self,pic):
+        self.pic=pic
+        self.pos=[400,550]
+        self.time=0
+        self.walking=False
+        self.side='left'
+        self.vel=0
+        self.lives=4
+    def tick(self):
+        self.time+=1
+    def update(self):
+        self.pos[0]+=self.vel
+    def draw_player(self,canvas):
+        if self.pos[0]>800:
+            self.pos[0]=800
+        if self.pos[0]<0:
+            self.pos[0]=0
+        if self.walking:
+            if self.side=='right':
+                canvas.draw_image(self.pic,[50+((self.time%4)*100),50],[100,100],self.pos,[100,100])
+            elif self.side=='left':
+                canvas.draw_image(self.pic,[50+((self.time%4)*100),150],[100,100],self.pos,[100,100])
+        else:
+            if self.side=='right':
+                canvas.draw_image(self.pic,[50,50],[100,100],self.pos,[100,100])
+            elif self.side=='left':
+                canvas.draw_image(self.pic,[50,150],[100,100],self.pos,[100,100])
+    def reset(self):
+        self.__init__(self.pic)
+        
+player=Player(player_pic)
+def kd(k):
+    global bow_list,fire_sound
+    if simplegui.KEY_MAP['a']==k:
+        player.vel=-2
+        player.walking=True
+        player.side='left'
+    if simplegui.KEY_MAP['d']==k:
+        player.vel=2
+        player.walking=True
+        player.side='right'
+    if simplegui.KEY_MAP['space']==k:
+        bow_list.append(Bow(player.pos))
+        fire_sound.rewind()
+        fire_sound.play()
+def ku(k):
+    if simplegui.KEY_MAP['a']==k:
+        player.vel=0
+        player.walking=False
+    if simplegui.KEY_MAP['d']==k:
+        player.vel=0
+        player.walking=False
+def game_start(cmd):
+    global player,bow_list,bubble_list,gamecondition,level,message,time,second_message
+    if cmd=='new':
+        player.reset()
+        bow_list=[]
+        bubble_list=[Bubble(1,[400,200],[1,0])]
+        time=0
+        level=1
+        gamecondition=True
+        second_message='use a-left d-right and space-fire'
+    if cmd=='goto2':
+        bow_list=[]
+        bubble_list=[Bubble(1,[60,200],[1,0]),Bubble(1,[740,200],[-1,0])]
+        level=2
+        gamecondition=True
+    if cmd=='goto3':
+        bow_list=[]
+        bubble_list=[Bubble(1,[60,200],[1,0]),Bubble(1,[740,200],[-1,0]),Bubble(1,[400,200],[-1,-1])]
+        level=3
+        gamecondition=True
+        
+def start():
+    game_start('new')
+def get_time():
+    if level==1:
+        return 60
+    elif level==2:
+        return 120
+    elif level==3:
+        return 180
+        
+    
+def draw(canvas):
+    global player,bow_list,bubble_list,gamecondition,level,message,time,pop_sound,evil_sound,level_up_sound,second_message
+    canvas.draw_image(back_pic,[400,300],[800,600],[400,300],[800,600])
+    if gamecondition:
+        canvas.draw_text('Time: '+str(int(time/60))+':'+str(time%60)+' Level: '+str(level)+' Lives: '+str(player.lives)+' Bubbles left: '+str(len(bubble_list)),[30,80],30,'white')
+        for a in bow_list:
+            a.draw_bow(canvas)
+            a.update()
+            if not a.print_con:
+                bow_list.remove(a)
+            
+        player.draw_player(canvas)
+        player.update()
+        for a in bubble_list:
+            a.draw_bubble(canvas)
+            if not a.print_con:
+                bubble_list.remove(a)
+            if a.pos[0]>805+a.radius or a.pos[0]<-5-a.radius:
+                a.print_con=False
+        for a in bubble_list:
+            for b in bow_list:
+                if a.print_con:
+                    if a.pos[0]>b.pos[0]-5-a.radius and a.pos[0]<b.pos[0]+5+a.radius and a.pos[1]>b.pos[1] and a.pos[1]<b.p_pos[1]-50:
+                        a.print_con=False
+                        pop_sound.rewind()
+                        pop_sound.play()
+                        if a.size<4:
+                            bubble_list.append(Bubble(a.size+1,[b.pos[0]+10+a.radius,a.pos[1]],[1,-3]))
+                            bubble_list.append(Bubble(a.size+1,[b.pos[0]-10-a.radius,a.pos[1]],[-1,-3]))
+        if bubble_list==[] and time<get_time():
+            if level<3:
+                level_up_sound.rewind()
+                level_up_sound.play()
+                game_start('goto'+str(level+1))
+            else:
+                gamecondition=False
+                message='YOU WON'
+                second_message='use a-left d-right and space-fire'
+        for a in bubble_list:
+            if a.pos[0]>player.pos[0]-20-a.radius and a.pos[0]<player.pos[0]+20+a.radius and a.pos[1]>player.pos[1]-20-a.radius and a.pos[1]<player.pos[1]+20+a.radius:
+                player.lives-=1
+                a.print_con=False
+                pop_sound.rewind()
+                pop_sound.play()
+                if a.size<4:
+                    bubble_list.append(Bubble(a.size+1,[player.pos[0]+10+a.radius,a.pos[1]],[1,-5]))
+                    bubble_list.append(Bubble(a.size+1,[player.pos[0]-10-a.radius,a.pos[1]],[-1,-5]))
+                    
+        if player.lives<1:
+            message='BUBBLELISED'
+            evil_sound.rewind()
+            evil_sound.play()
+            gamecondition=False
+    else:
+        canvas.draw_text(message,[150,200],50,'red')
+        canvas.draw_text(second_message,[150,260],30,'red')
+            
+frame=simplegui.create_frame('bubble game',800,600)
+frame.set_draw_handler(draw)
+player_timer=simplegui.create_timer(100,player.tick)
+player_timer.start()
+bubble_timer=simplegui.create_timer(10,bubble_update)
+bubble_timer.start()
+time_timer=simplegui.create_timer(1000,update_maintime)
+time_timer.start()
+frame.add_button('start',start)
+frame.set_keydown_handler(kd)
+frame.set_keyup_handler(ku)
+frame.start()

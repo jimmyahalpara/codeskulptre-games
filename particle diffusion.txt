@@ -1,0 +1,70 @@
+import simplegui,random
+particles=[]
+offset=[[0,1],[1,0],[0,-1],[-1,0]]
+clrs=['red','yellow','green','blue']
+brustvel=[6,8,10,12]
+brust=False
+offcon=True
+def changecon():
+    global offcon
+    offcon=not offcon
+def changebrust():
+    global brust
+    brust=not brust
+def msd(pos):
+    global particles,clrs
+    particles.append(Particle(list(pos),random.choice(clrs)))
+def ms(pos):
+    global particles, brustvel,brust
+    if brust:
+        for a in particles:
+            if a.pos[0]<pos[0]:
+                a.vel[0]=-(random.choice(brustvel))
+            if a.pos[0]>pos[0]:
+                a.vel[0]=random.choice(brustvel)
+            if a.pos[1]<pos[1]:
+                a.vel[1]=-(random.choice(brustvel))
+            if a.pos[1]>pos[1]:
+                a.vel[1]=random.choice(brustvel)
+class Particle:
+    def __init__(self,pos,clrs):
+        self.pos=pos
+        self.clrs=clrs
+        self.vel=[0,0]
+    def update(self):
+        global offset,offcon
+        if offcon:
+            self.pos[0]+=random.choice(offset)[0]+self.vel[0]
+            self.pos[1]+=random.choice(offset)[1]+self.vel[1]
+        else:
+            self.pos[0]+=self.vel[0]
+            self.pos[1]+=self.vel[1]
+    def draws(self,canvas):
+        canvas.draw_circle(self.pos,5,1,self.clrs,self.clrs)
+
+def draw(canvas):
+    global particles
+    for a in particles:
+        a.draws(canvas)
+        a.update()
+
+def start():
+    global particles,clrs
+    for a in range(200):
+        particles.append(Particle([200,200],random.choice(clrs)))
+def reset():
+    global particles
+    particles=[]
+
+
+
+frame=simplegui.create_frame('particles',400,400)
+frame.add_button('reset',reset)
+frame.add_button('insert automatically',start)
+frame.add_button('Burst',changebrust)
+frame.add_button('Vibrations',changecon)
+
+frame.set_mousedrag_handler(msd)
+frame.set_draw_handler(draw)
+frame.set_mouseclick_handler(ms)
+frame.start()

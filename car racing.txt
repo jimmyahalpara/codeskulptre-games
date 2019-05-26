@@ -1,0 +1,142 @@
+import simplegui,math,random
+back_pic=simplegui.load_image('D:/sprite images/background_road.png')
+yellow_car=simplegui.load_image('D:/sprite images/yellowcar.png')
+blue_car=simplegui.load_image('D:/sprite images/bluecar.png')
+back_img=[200,0]
+car_list=[]
+lane_con=[True,True,True,True]
+lives=5
+gamecondition=True
+score=0
+level=1
+        
+class Player:
+    def __init__(self,pic):
+        self.pic=pic
+        self.pos=[200,360]
+        self.vel=1
+        self.horizontal=0
+        self.vertical=0
+    def update(self):
+        self.pos[0]+=self.horizontal
+        self.pos[1]+=self.vertical
+    def draw_player(self,canvas):
+        canvas.draw_image(self.pic,[25,50],[50,100],self.pos,[50,100])
+    def reset(self):
+        self.__init__(self.pic)
+class Car:
+    def __init__(self,pic,lan,vel):
+        self.pic=pic
+        self.lane=[[100,0],[150,0],[200,0],[250,0],[300,0]]
+        self.lan=lan
+        self.pos=self.lane[lan]
+        self.vel=vel
+    def update(self):
+        self.pos[1]+=self.vel
+    def draw_car(self,canvas):
+        canvas.draw_image(self.pic,[25,50],[50,100],self.pos,[50,100])
+                          
+
+def tick():
+    global back_img
+    back_img[1]+=10
+    back_img[1]%=150
+
+player=Player(yellow_car)
+def reset():
+    global player,car_list,lane_con
+    lane_con=[True,True,True,True]
+    car_list=[]
+    player.reset()
+def return_lane():
+    global lane_con
+    p=[]
+    for a in lane_con:
+        if a==True:
+            p.append(lane_con.index(a))
+    s=random.choice(p)
+    lane_con[s]=False
+    return s
+def draw(canvas):
+    global back_img,back_pic,yellow_car,car_list,blue_car,lives,gamecondition,lane_con,score,level
+    if gamecondition:
+        canvas.draw_image(back_pic,[200,back_img[1]+200],[400,400],[200,200],[400,400],math.radians(180))
+        player.draw_player(canvas)
+        player.update()
+        if random.random()<0.01:
+            if True in lane_con:
+                if level==1:
+                    x=random.randint(1,3)
+                if level==2:
+                    x=random.randint(3,4)
+                if level==3:
+                    x=random.randint(4,5)
+                car_list.append(Car(blue_car,return_lane(),x))
+        for a in car_list:
+            a.draw_car(canvas)
+            a.update()
+            if a.pos[1]>500:
+                car_list.remove(a)
+                lane_con[a.lan]=True
+            for a in car_list:
+                if player.pos[0]>a.pos[0]-44 and player.pos[0]<a.pos[0]+44 and player.pos[1]>a.pos[1]-100 and player.pos[1]<a.pos[1]+100:
+                    lives-=1
+                    reset()
+                    print lives
+            if lives<1:
+                gamecondition=False
+        if player.pos[0]>302:
+            player.pos[0]=302
+        if player.pos[0]<97:
+            player.pos[0]=97
+        canvas.draw_text('Score: '+str(score),[420,30],20,'white')
+        canvas.draw_text('Lives: '+str(lives),[420,60],20,'white')
+        canvas.draw_text('Level: '+str(level),[420,90],20,'white')
+    else:
+        canvas.draw_text('GAME OVER',[150,230],30,'white')
+        canvas.draw_text('Score:'+str(score),[150,250],20,'white')
+def tick2():
+    global gamecondition,score,level
+    if gamecondition:
+        score+=1
+    if score>500:
+        level=2
+    if score>1000:
+        level=3
+    
+def kd(k):
+    if simplegui.KEY_MAP['a']==k:
+        player.horizontal=-1.5
+    if simplegui.KEY_MAP['d']==k:
+        player.horizontal=1.5
+    if simplegui.KEY_MAP['w']==k:
+        player.vertical=-1.5
+    if simplegui.KEY_MAP['s']==k:
+        player.vertical=1.5
+def ku(k):
+    if simplegui.KEY_MAP['a']==k:
+        player.horizontal=0
+    if simplegui.KEY_MAP['d']==k:
+        player.horizontal=0
+    if simplegui.KEY_MAP['w']==k:
+        player.vertical=0
+    if simplegui.KEY_MAP['s']==k:
+        player.vertical=0
+def restart():
+    global car_list,lane_con,score,gamecondition,lives,level
+    car_list=[]
+    lane_con=[True,True,True,True]
+    gamecondition=True
+    lives=5
+    level=1
+
+frame=simplegui.create_frame('racing',600,400)
+frame.add_button('restart',restart)
+frame.set_draw_handler(draw)
+frame.set_keydown_handler(kd)
+frame.set_keyup_handler(ku)
+timer=simplegui.create_timer(50,tick)
+timer2=simplegui.create_timer(100,tick2)
+timer2.start()
+timer.start()
+frame.start()

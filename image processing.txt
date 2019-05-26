@@ -1,0 +1,44 @@
+import simplegui
+import math
+angle=0
+pic=simplegui.load_image('D:/python projects/codeskulptre programs/fan.jpg')
+x=200
+y=200
+pox=100
+poy=100
+def kd(k):
+    global pox,poy
+    if simplegui.KEY_MAP['w']==k:
+        poy-=10
+    if simplegui.KEY_MAP['s']==k:
+        poy+=10
+    if simplegui.KEY_MAP['a']==k:
+        pox-=10
+    if simplegui.KEY_MAP['d']==k:
+        pox+=10
+def decrease():
+    global x,y
+    if x>10 and y>10:
+        x-=10
+        y-=10
+def increase():
+    global x,y
+    x+=10
+    y+=10
+def angleinput(ang):
+    global angle
+    angle=math.radians(int(ang))
+# Handler to draw on canvas
+def draw(canvas):
+    global angle,x,y,pox,poy
+    canvas.draw_image(pic,[100,100],[200,200],[pox,poy],[x,y],angle)
+# Create a frame and assign callbacks to event handlers
+frame = simplegui.create_frame("Home", 200, 200)
+frame.add_input('Enter angle',angleinput,40)
+frame.add_button('increase size',increase)
+frame.add_button('decrease size',decrease)
+frame.set_keydown_handler(kd)
+frame.set_draw_handler(draw)
+
+# Start the frame animation
+frame.start()

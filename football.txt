@@ -1,0 +1,95 @@
+import simplegui,math
+background_pic=simplegui.load_image('D:/sprite images/football_background.png')
+goal_pic=simplegui.load_image('D:/sprite images/goal.png')
+football_pic=simplegui.load_image('D:/sprite images/football2.png')
+class Goal:
+    def __init__(self):
+        global goal_pic
+        self.pic=goal_pic
+        self.pos=[450,270]
+        self.vel=5
+        self.score=0
+    def update(self):
+        self.pos[0]+=self.vel
+        if self.pos[0]>800 or self.pos[0]<100:
+            self.vel*=-1
+    def draw_goal(self,canvas):
+        canvas.draw_image(self.pic,[100,100],[200,200],self.pos,[200,200])
+        canvas.draw_text('Score: %i'%self.score,[10,60],50,'white')
+class Football:
+    def __init__(self):
+        global football_pic
+        self.pos=[50,500]
+        self.angle=0
+        self.angle_adder=0
+        self.forcey=5.0
+        self.forcex=5.0
+        self.rot_angle=0
+        self.rotational_vel=0.5
+        self.shot_con=False
+        self.image_d=[100,100]
+        self.pic=football_pic
+    def update(self):
+        if self.shot_con:
+            self.pos[0]+=math.cos(math.radians(self.angle))*self.forcex
+            self.pos[1]+=math.sin(math.radians(self.angle))*self.forcey
+            self.forcey-=0.1
+            self.rot_angle+=self.rotational_vel
+            if self.image_d[0]>1:
+                self.image_d[0]-=0.4
+                self.image_d[1]-=0.4
+        if not self.shot_con:
+            self.angle+=self.angle_adder
+        else:
+            if self.angle>-90:
+                self.angle-=0.25
+        if self.forcey<0 and self.pos[1]>450:
+            self.reset()
+        if self.pos[0]>900 or self.pos[0]<0 or self.pos[1]<0 or self.pos[1]>600:
+            self.reset()
+    def draw_football(self,canvas):
+        if not self.shot_con:
+            canvas.draw_line(self.pos,[self.pos[0]+math.cos(math.radians(self.angle))*80,self.pos[1]+math.sin(math.radians(self.angle))*80],10,'aqua')
+        canvas.draw_image(self.pic,[50,50],[100,100],self.pos,self.image_d,math.radians(self.rot_angle))
+        canvas.draw_text('Force: %i'%self.forcex,[0,590],25,'black')
+    def reset(self):
+        self.__init__()
+football=Football()
+goal=Goal()
+def draw(canvas):
+    canvas.draw_image(background_pic,[450,300],[900,600],[450,300],[900,600])
+    football.draw_football(canvas)
+    football.update()
+    goal.draw_goal(canvas)
+    goal.update()
+    if football.pos[0]>goal.pos[0]-100 and football.pos[0]<goal.pos[0]+100 and football.pos[1]>goal.pos[1]-100 and football.pos[1]<goal.pos[1]:
+        if football.shot_con and football.forcey>0:
+            goal.score+=1
+            football.reset()
+def kd(k):
+    global football
+    if simplegui.KEY_MAP['a']==k:
+        football.angle_adder=-1
+    if simplegui.KEY_MAP['d']==k:
+        football.angle_adder=1
+    if simplegui.KEY_MAP['w']==k:
+        football.shot_con=True
+    if simplegui.KEY_MAP['i']==k:
+        football.forcex+=1.0
+        football.forcey+=1.0
+    if simplegui.KEY_MAP['k']==k:
+        football.forcex-=1.0
+        football.forcey-=1.0
+def ku(k):
+    global football
+    if simplegui.KEY_MAP['a']==k:
+        football.angle_adder=0
+    if simplegui.KEY_MAP['d']==k:
+        football.angle_adder=0
+    
+    
+frame=simplegui.create_frame('Football game',900,600)
+frame.set_draw_handler(draw)
+frame.set_keydown_handler(kd)
+frame.set_keyup_handler(ku)
+frame.start()

@@ -1,0 +1,40 @@
+# CodeSkulptor runs Python programs in your browser.
+# Click the upper left button to run this simple demo.
+
+# CodeSkulptor runs in Chrome 18+, Firefox 11+, and Safari 6+.
+# Some features may work in other browsers, but do not expect
+# full functionality.  It does NOT run in Internet Explorer.
+import math
+import simplegui
+xcord=150
+ycord=150
+angle=30
+speed=0
+# Handler for mouse click
+def increase():
+    global speed
+    speed+=1
+def decrease():
+    global speed
+    speed-=1
+# Handler to draw on canvas
+def draw(canvas):
+    global angle,xcord,ycord,speed
+    canvas.draw_line([150,150],[150+(math.sin(math.radians(angle))*100),150+(math.cos(math.radians(angle))*100)],5,'white')
+    angle+=speed
+    
+    if speed<>0:
+        if 360%speed==0:
+            if speed<>1:
+                canvas.draw_text('not moving',[3,330],20,'aqua')
+        else:
+            canvas.draw_text('moving',[3,330],20,'aqua')
+
+# Create a frame and assign callbacks to event handlers
+frame = simplegui.create_frame("Home", 300, 330)
+frame.add_button('increase speed',increase)
+frame.add_button('decrease speed',decrease)
+frame.set_draw_handler(draw)
+
+# Start the frame animation
+frame.start()

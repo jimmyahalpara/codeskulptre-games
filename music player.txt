@@ -1,0 +1,90 @@
+import simplegui,math,random
+
+m2=simplegui.load_sound('D:/codeskulptre music/01 - Bol Do Na Zara - DownloadMing.SE.mp3')
+m3=simplegui.load_sound('D:/codeskulptre music/01 - Gumnaam Hai Koi - DownloadMing.SE.mp3')
+ml=[m2,m3]
+i=0
+v=0.5
+bar_list=[]
+animation=False
+
+class Bar:
+    def __init__(self,h,pos,col):
+        self.angle=h
+        self.pos=pos
+        self.col=col
+        self.feq=random.randint(2,7)
+        self.hei=random.randint(50,300)
+    def update(self):
+        self.angle+=self.feq
+    def draw_bar(self,canvas):
+        global animation
+        if animation:
+            s=math.fabs((math.sin(math.radians(self.angle))))
+            if s<=0.173:
+                
+                self.hei=random.randint(50,300)
+                self.feq=random.randint(2,7)
+            canvas.draw_line([self.pos,300],[self.pos,300-(s*self.hei)],40,self.col)
+        else:
+            canvas.draw_line([self.pos,300],[self.pos,299],20,self.col)
+bar_list.append(Bar(random.randint(0,90),70,'red'))
+bar_list.append(Bar(random.randint(0,90),110,'yellow'))
+bar_list.append(Bar(random.randint(0,90),150,'blue'))
+bar_list.append(Bar(random.randint(0,90),190,'pink'))
+bar_list.append(Bar(random.randint(0,90),230,'green'))
+bar_list.append(Bar(random.randint(0,90),270,'grey'))
+bar_list.append(Bar(random.randint(0,90),310,'orange'))
+bar_list.append(Bar(random.randint(0,90),350,'violet'))
+bar_list.append(Bar(random.randint(0,90),390,'aqua'))
+bar_list.append(Bar(random.randint(0,90),430,'purple'))
+def draw(canvas):
+    global bar_list
+    for a in bar_list:
+        a.draw_bar(canvas)
+        a.update()
+def plays():
+    global m1,i,animation
+    ml[i].play()
+    animation=True
+def pauses():
+    global ml,i,animation
+    ml[i].pause()
+    animation=False
+def rewinds():
+    global ml,i,animation
+    ml[i].rewind()
+    animation=False
+def volumeup():
+    global v,ml,i
+    if v<0.9:
+        v+=0.1
+    ml[i].set_volume(v)
+def volumedown():
+    global v,ml,i
+    if v>0.1:
+        v-=0.1
+    ml[i].set_volume(v)
+def nextm():
+    global i,ml
+    ml[i].pause()
+    if i<len(ml)-1:
+        i+=1
+    ml[i].play()
+def prem():
+    global i,ml
+    ml[i].pause()
+    if i>0:
+        i-=1
+    ml[i].play()
+        
+frame=simplegui.create_frame('MP3',500,300)
+frame.add_button('Play',plays)
+frame.add_button('pause',pauses)
+frame.add_button('rewind',rewinds)
+frame.add_button('volume +',volumeup)
+frame.add_button('volume -',volumedown)
+frame.add_button('next',nextm)
+frame.add_button('previous',prem)
+frame.set_draw_handler(draw)
+frame.start()

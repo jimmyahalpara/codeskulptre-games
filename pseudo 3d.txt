@@ -1,0 +1,51 @@
+import simplegui
+centre_pos=[200,200]
+pos=centre_pos[:]
+md=20
+box_list=[]
+class Box:
+    def __init__(self):
+        self.pos=[[-20,-20],[-20,20],[20,20],[20,-20]]
+    def update(self):
+        self.pos[0][0]-=1
+        self.pos[0][1]-=1
+        self.pos[1][0]-=1
+        self.pos[1][1]+=1
+        self.pos[2][0]+=1
+        self.pos[2][1]+=1
+        self.pos[3][0]+=1
+        self.pos[3][1]-=1
+    def draw_box(self,canvas):
+        global pos
+        canvas.draw_polygon([[pos[0]+self.pos[0][0],pos[1]+self.pos[0][1]],[pos[0]+self.pos[1][0],pos[1]+self.pos[1][1]],[pos[0]+self.pos[2][0],pos[1]+self.pos[2][1]],[pos[0]+self.pos[3][0],pos[1]+self.pos[3][1]]],3,'white')
+def draw(canvas):
+    global centre_pos,md,pos
+    canvas.draw_polygon([[centre_pos[0]-md,centre_pos[1]-md],[centre_pos[0]-md,centre_pos[1]+md],[centre_pos[0]+md,centre_pos[1]+md],[centre_pos[0]+md,centre_pos[1]-md]],3,'white')
+    canvas.draw_line([pos[0]-300,pos[1]-300],[centre_pos[0]-md,centre_pos[1]-md],3,'white')
+    canvas.draw_line([pos[0]-300,pos[1]+300],[centre_pos[0]-md,centre_pos[1]+md],3,'white')
+    canvas.draw_line([pos[0]+300,pos[1]+300],[centre_pos[0]+md,centre_pos[1]+md],3,'white')
+    canvas.draw_line([pos[0]+300,pos[1]-300],[centre_pos[0]+md,centre_pos[1]-md],3,'white')
+    canvas.draw_polygon([[pos[0]-300,pos[1]-300],[pos[0]-300,pos[1]+300],[pos[0]+300,pos[1]+300],[pos[0]+300,pos[1]-300]],3,'white')
+    for a in box_list:
+        a.draw_box(canvas)
+        a.update()
+
+def kd(k):
+    global centre_pos,pos
+    if simplegui.KEY_MAP['w']==k:
+        pos[1]-=10
+    if simplegui.KEY_MAP['s']==k:
+        pos[1]+=10
+    if simplegui.KEY_MAP['d']==k:
+        pos[0]+=10
+    if simplegui.KEY_MAP['a']==k:
+        pos[0]-=10
+def box_tick():
+    global box_list
+    box_list.append(Box())
+frame=simplegui.create_frame('psuedo 3d',400,400)
+frame.set_draw_handler(draw)
+frame.set_keydown_handler(kd)
+#timer_box=simplegui.create_timer(100,box_tick)
+#timer_box.start()
+frame.start()

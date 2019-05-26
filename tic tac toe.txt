@@ -1,0 +1,103 @@
+import simplegui
+l=[' ',' ',' ',' ',' ',' ',' ',' ',' ']
+swap=0
+playcon=True
+message=''
+def check():
+    global l,playcon,message
+    if ('O'==l[2]==l[4]==l[6]!=' ') or ('O'==l[0]==l[4]==l[8]!=' ') or ('O'==l[2]==l[5]==l[8]!=' ') or ('O'==l[1]==l[4]==l[7]!=' ') or ('O'==l[0]==l[3]==l[6]!=' ') or ('O'==l[6]==l[7]==l[8]!=' ') or ('O'==l[3]==l[4]==l[5]!=' ') or ('O'==l[0]==l[1]==l[2]!=' '):
+        print('ok')
+        playcon=False
+        message='player O won!'
+    if ('X'==l[2]==l[4]==l[6]!=' ') or ('X'==l[0]==l[4]==l[8]!=' ') or ('X'==l[2]==l[5]==l[8]!=' ') or ('X'==l[1]==l[4]==l[7]!=' ') or ('X'==l[0]==l[3]==l[6]!=' ') or ('X'==l[6]==l[7]==l[8]!=' ') or ('X'==l[3]==l[4]==l[5]!=' ') or ('X'==l[0]==l[1]==l[2]!=' '):
+        print('ok')
+        playcon=False
+        message='player X won!'
+def click(pos):
+    global swap,l
+    if playcon:
+        if pos[0]>100 and pos[0]<200 and pos[1]>100 and pos[1]<200:
+            if l[0]==' ':
+                if swap%2==0:
+                    l[0]='O'
+                else:
+                    l[0]='X'  
+        if pos[0]>200 and pos[0]<300 and pos[1]>100 and pos[1]<200:
+            if l[1]==' ':
+                if swap%2==0:
+                    l[1]='O'
+                else:
+                    l[1]='X'
+        if pos[0]>300 and pos[0]<400 and pos[1]>100 and pos[1]<200:
+            if l[2]==' ':
+                if swap%2==0:
+                    l[2]='O'
+                else:
+                    l[2]='X'
+        if pos[0]>100 and pos[0]<200 and pos[1]>200 and pos[1]<300:
+            if l[3]==' ':
+                if swap%2==0:
+                    l[3]='O'
+                else:
+                    l[3]='X'
+        if pos[0]>200 and pos[0]<300 and pos[1]>200 and pos[1]<300:
+            if l[4]==' ':
+                if swap%2==0:
+                    l[4]='O'
+                else:
+                    l[4]='X'
+        if pos[0]>300 and pos[0]<400 and pos[1]>200 and pos[1]<300:
+            if l[5]==' ':
+                if swap%2==0:
+                    l[5]='O'
+                else:
+                    l[5]='X'
+        if pos[0]>100 and pos[0]<200 and pos[1]>300 and pos[1]<400:
+            if l[6]==' ':
+                if swap%2==0:
+                    l[6]='O'
+                else:
+                    l[6]='X'
+        if pos[0]>200 and pos[0]<300 and pos[1]>300 and pos[1]<400:
+            if l[7]==' ':
+                if swap%2==0:
+                    l[7]='O'
+                else:
+                    l[7]='X'
+        if pos[0]>300 and pos[0]<400 and pos[1]>300 and pos[1]<400:
+            if l[8]==' ':
+                if swap%2==0:
+                    l[8]='O'
+                else:
+                    l[8]='X'
+        check()
+        swap+=1
+def reset():
+    global l,message,swap,playcon
+    l=[' ',' ',' ',' ',' ',' ',' ',' ',' ']
+    message=''
+    swap=0
+    playcon=True
+def draw(canvas):
+    global l,message
+    canvas.draw_line((200,100),(200,400),5,'white')
+    canvas.draw_line((300,100),(300,400),5,'white')
+    canvas.draw_line((100,200),(400,200),5,'white')
+    canvas.draw_line((100,300),(400,300),5,'white')
+    canvas.draw_text(l[0],(110,190),100,'white')
+    canvas.draw_text(l[1],(210,190),100,'white')
+    canvas.draw_text(l[2],(310,190),100,'white')
+    canvas.draw_text(l[3],(110,290),100,'white')
+    canvas.draw_text(l[4],(210,290),100,'white')
+    canvas.draw_text(l[5],(310,290),100,'white')
+    canvas.draw_text(l[6],(110,390),100,'white')
+    canvas.draw_text(l[7],(210,390),100,'white')
+    canvas.draw_text(l[8],(310,390),100,'white')
+    canvas.draw_text(message,(10,490),20,'yellow')
+    
+
+frame=simplegui.create_frame('tic-tac-toe',500,500)
+frame.set_mouseclick_handler(click)
+frame.add_button('reset',reset)
+frame.set_draw_handler(draw)
+frame.start()

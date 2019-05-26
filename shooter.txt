@@ -1,0 +1,56 @@
+import simplegui
+linl=30
+linsp=2
+ballpos=[30,300]
+ballsp=0
+scorelist=[0,0,0,0,0]
+suum=0
+thrown=False
+def updatescore(sc):
+    global suum, scorelist
+    scorelist.append(sc)
+    del scorelist[0]
+    suum=sum(scorelist)
+def kd(key):
+    if simplegui.KEY_MAP['space']==key:
+        throw()
+def throw():
+    global thrown, ballsp,linl
+    if not thrown:
+        ba=linl
+        ballsp=ba/20
+        thrown=True
+def draw(canvas):
+    global linl,linsp,ballpos,ballsp,thrown,scorelist,suum
+    canvas.draw_circle([700,300],120,4,'white','green')
+    canvas.draw_circle([700,300],80,4,'white','yellow')
+    canvas.draw_circle([700,300],40,4,'white','red')
+    canvas.draw_line([30,520],[linl,520],20,'orange')
+    canvas.draw_circle(ballpos,20,1,'aqua','aqua')
+    canvas.draw_text('your score is: '+str(scorelist[0])+','+str(scorelist[1])+','+str(scorelist[2])+','+str(scorelist[3])+','+str(scorelist[4])+'  sum: '+str(suum),[50,30],20,'white')
+    if linl>650:
+        linl=650
+    linl+=linsp
+    
+    if thrown and ballsp>0:
+        ballpos[0]+=ballsp
+        ballsp-=0.1
+        linsp=0
+    if ballsp<=0:
+        if (ballpos[0]>580 and ballpos[0]<=620) or (ballpos[0]>=780 and ballpos[0]<820):
+            updatescore(10)
+        if (ballpos[0]>620 and ballpos[0]<=660) or (ballpos[0]>=740 and ballpos[0]<780) :
+            updatescore(20)
+        if (ballpos[0]>660 and  ballpos[0]<=740):
+            updatescore(30)
+    if (ballsp<=0 and thrown) or ballpos[0]>900:
+        ballpos=[30,300]
+        linsp=2
+        linl=30
+        thrown=False
+
+        
+frame=simplegui.create_frame('home',900,600)
+frame.set_keydown_handler(kd)
+frame.set_draw_handler(draw)
+frame.start()

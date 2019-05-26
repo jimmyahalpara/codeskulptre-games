@@ -1,0 +1,321 @@
+import simplegui,random,math
+tank_pic=simplegui.load_image('D:/sprite images/tank.png')
+helicopter1_pic=simplegui.load_image('D:/sprite images/helicopter1.png')
+helicopter2_pic=simplegui.load_image('D:/sprite images/helicopter2.png')
+jetfighter_pic=simplegui.load_image('D:/sprite images/fighterjet.png')
+helicopter1_pic_flip=simplegui.load_image('D:/sprite images/helicopter1_flip.png')
+helicopter2_pic_flip=simplegui.load_image('D:/sprite images/helicopter2_flip.png')
+jetfighter_pic_flip=simplegui.load_image('D:/sprite images/fighterjet_flip.png')
+explosion_pic=simplegui.load_image('D:/sprite images/explosion2.jpg')
+jet_sound=simplegui.load_sound('D:/codeskulptre music/airland.mp3')
+fire_sound=simplegui.load_sound('D:/codeskulptre music/Gun+357+Magnum.mp3')
+expo_sound=simplegui.load_sound('D:/codeskulptre music/Explosion+3.mp3')
+heli_sound=simplegui.load_sound('D:/codeskulptre music/helicopter-fly-over-01.mp3')
+bomb_expo_sound=simplegui.load_sound('D:/codeskulptre music/Explosion.mp3')
+bomb_expo_sound.set_volume(0.7)
+fire_sound.set_volume(0.9)
+jet_sound.set_volume(0.5)
+heli_sound.set_volume(0.5)
+expo_sound.set_volume(0.9)
+
+
+
+
+gamecondition=True
+score=0
+new_con=False
+bullet_list=[]
+enemy_list=[]
+
+expo_list=[]
+bomb_list=[]
+
+def tick1():
+    global new_con,gamecondition
+    if gamecondition:
+        new_con=True
+def tick2():
+    global expo_list,gamecondition
+    for a in expo_list:
+        a.update()
+def tick3():
+    global bomb_list
+    for a in bomb_list:
+        a.update_time()
+
+class Bomb:
+    def __init__(self,pos,vel):
+        self.pos=pos
+        self.vel=vel
+        self.time=0
+        self.draw_pos=pos[:]
+    def update_time(self):
+        self.time+=1
+    def update(self):
+        self.draw_pos[0]+=self.vel
+        self.draw_pos[1]=self.pos[1]+(5*(self.time))
+        
+    def draw_bomb(self,canvas):
+        global bomb_expo_sound
+        if self.draw_pos[1]<455:
+            canvas.draw_circle(self.draw_pos,5,1,'black','black')
+        else:
+            bomb_expo_sound.rewind()
+            bomb_expo_sound.play()
+            canvas.draw_circle(self.draw_pos,15,1,'orange','orange')
+class Explosion:
+    def __init__(self,pic,pos):
+        global expo_sound
+        self.pos=pos
+        self.pic=pic
+        self.n=0
+        expo_sound.rewind()
+        expo_sound.play()
+    def update(self):
+        self.n+=1
+    def draw_expo(self,canvas):
+        if self.n<8:
+            canvas.draw_image(self.pic,[30+self.n*60,30],[60,60],self.pos,[60,60])
+class Enemy:
+    def __init__(self,pic,typ,direction):
+        global jet_sound,heli_sound
+        self.pic=pic
+        self.enemy_type=typ
+        self.direction=direction
+        if direction==0:
+            if self.enemy_type=='heli1':
+                heli_sound.rewind()
+                heli_sound.play()
+                self.pos=[0,30]
+                self.vel=2
+                self.bomb_prob=0.05
+            elif self.enemy_type=='heli2':
+                heli_sound.rewind()
+                heli_sound.play()
+                self.pos=[0,80]
+                self.vel=3
+                self.bomb_prob=0.009
+            elif self.enemy_type=='jet':
+                jet_sound.rewind()
+                jet_sound.play()
+                self.pos=[0,130]
+                self.vel=4
+                self.bomb_prob=0.002
+        elif direction==1:
+            if self.enemy_type=='heli1':
+                heli_sound.rewind()
+                heli_sound.play()
+                self.pos=[800,30]
+                self.vel=-2
+                self.bomb_prob=0.05
+            elif self.enemy_type=='heli2':
+                heli_sound.rewind()
+                heli_sound.play()
+                self.pos=[800,80]
+                self.vel=-3
+                self.bomb_prob=0.009
+            elif self.enemy_type=='jet':
+                jet_sound.rewind()
+                jet_sound.play()
+                self.pos=[800,130]
+                self.vel=-4
+                self.bomb_prob=0.002        
+    def update(self):
+        self.pos[0]+=self.vel
+    def draw_enemy(self,canvas):
+        canvas.draw_image(self.pic,[75,25],[150,50],self.pos,[150,50])
+        
+
+        
+class Bullet:
+    def __init__(self,pos,angle):
+        self.pos=pos
+        self.angle=angle
+    def update(self):
+        self.pos[0]+=math.cos(math.radians(self.angle))*5
+        self.pos[1]+=math.sin(math.radians(self.angle))*5
+    def draw_bullet(self,canvas):
+        canvas.draw_circle(self.pos,3,1,'orange','orange')
+class Tank:
+    def __init__(self,pic):
+        self.pos=[400,434]
+        self.barrel_angle=-124
+        self.update_vel=0
+        self.barrel_vel=0
+        self.pic=pic
+        self.health=1000
+        self.shells=1000
+    def update(self):
+        self.pos[0]+=self.update_vel
+        self.barrel_angle+=self.barrel_vel
+    def draw_tank(self,canvas):
+        if self.barrel_angle>-30:
+            self.barrel_angle=-30
+        if self.barrel_angle<-140:
+            self.barrel_angle=-140
+        if self.pos[0]>800:
+            self.pos[0]=800
+        if self.pos[0]<0:
+            self.pos[0]=0
+        canvas.draw_image(self.pic,[50,25],[100,50],self.pos,[100,50])
+        canvas.draw_line(self.pos,[self.pos[0]+(math.cos(math.radians(self.barrel_angle))*50),self.pos[1]+(math.sin(math.radians(self.barrel_angle))*50)],5,'green')
+        if self.health>800:
+            canvas.draw_line([100,490],[100+(self.health/5),490],15,'green')
+        elif self.health<=800 and self.health>600:
+            canvas.draw_line([100,490],[100+(self.health/5),490],15,'aqua')
+        elif self.health<=600 and self.health>200:
+            canvas.draw_line([100,490],[100+(self.health/5),490],15,'yellow')
+        elif self.health<=200:
+            canvas.draw_line([100,490],[100+(self.health/5),490],15,'red')
+    def reset(self):
+        self.__init__(self.pic)
+
+tank=Tank(tank_pic)
+
+def kd(k):
+    global tank,bullet_list,gamecondition,fire_sound
+    if gamecondition:
+        if simplegui.KEY_MAP['a']==k:
+            tank.update_vel=-1
+        if simplegui.KEY_MAP['d']==k:
+            tank.update_vel=1
+        if simplegui.KEY_MAP['w']==k:
+            if tank.barrel_angle<-60:
+                tank.barrel_vel=1
+        if simplegui.KEY_MAP['s']==k:
+            if tank.barrel_angle>-140:
+                tank.barrel_vel=-1
+        if simplegui.KEY_MAP['space']==k:
+            fire_sound.rewind()
+            fire_sound.play()
+            bullet_list.append(Bullet(tank.pos[:],tank.barrel_angle))
+            tank.shells-=1
+            
+        
+def ku(k):
+    global tank
+    if simplegui.KEY_MAP['a']==k:
+        tank.update_vel=0
+    if simplegui.KEY_MAP['d']==k:
+        tank.update_vel=0
+    if simplegui.KEY_MAP['w']==k:
+        tank.barrel_vel=0
+    if simplegui.KEY_MAP['s']==k:
+        tank.barrel_vel=0
+def draw(canvas):
+    global tank,bullet_list,enemy_list,new_con,expo_list,score,bomb_list,gamecondition,jet_sound,heli_sound
+    if gamecondition:
+        canvas.draw_polygon([[0,460],[800,460],[800,530],[0,530]],3,'brown','brown')
+        tank.draw_tank(canvas)
+        tank.update()
+        for a in bullet_list:
+            a.draw_bullet(canvas)
+            a.update()
+            if a.pos[0]<0 or a.pos[0]>800 or a.pos[1]<0:
+                bullet_list.remove(a)
+        if new_con:
+            l=random.randint(1,3)
+            d=random.randint(0,1)
+            if d==0:
+                if l==1:
+                    enemy_list.append(Enemy(helicopter1_pic,'heli1',0))
+                elif l==2:
+                    enemy_list.append(Enemy(helicopter2_pic,'heli2',0))
+                elif l==3:
+                    enemy_list.append(Enemy(jetfighter_pic,'jet',0))
+            elif d==1:
+                if l==1:
+                    enemy_list.append(Enemy(helicopter1_pic_flip,'heli1',1))
+                elif l==2:
+                    enemy_list.append(Enemy(helicopter2_pic_flip,'heli2',1))
+                elif l==3:
+                    enemy_list.append(Enemy(jetfighter_pic_flip,'jet',1))
+            new_con=False
+        for a in enemy_list:
+            a.draw_enemy(canvas)
+            a.update()
+            if random.random()<a.bomb_prob:
+                if a.direction==0:
+                    bomb_list.append(Bomb(a.pos,random.randint(0,1)))
+                if a.direction==1:
+                    bomb_list.append(Bomb(a.pos,random.randint(-1,0)))
+            if a.pos[0]>800 or a.pos[0]<0:
+                enemy_list.remove(a)
+        
+        for a in bullet_list:
+            for b in enemy_list:
+                if a.pos[0]>b.pos[0]-70 and a.pos[0]<b.pos[0]+70 and a.pos[1]>b.pos[1]-20 and a.pos[1]<b.pos[1]+20:
+                    bullet_list.remove(a)
+                    enemy_list.remove(b)
+                    expo_list.append(Explosion(explosion_pic,a.pos[:]))
+                    if b.enemy_type=='heli1':
+                        con=True
+                        for c in enemy_list:
+                            if c.enemy_type in ['heli1','heli2']:
+                                con=False
+                        if con:
+                            heli_sound.pause()
+                        score+=10
+                    elif b.enemy_type=='heli2':
+                        con=True
+                        for c in enemy_list:
+                            if c.enemy_type in ['heli1','heli2']:
+                                con=False
+                        if con:
+                            heli_sound.pause()
+                        score+=10
+                    elif b.enemy_type=='jet':
+                        jet_sound.pause()
+                        score+=30
+                        
+        for a in expo_list:
+            a.draw_expo(canvas)
+
+        for a in bomb_list:
+            a.draw_bomb(canvas)
+            a.update()
+            if a.draw_pos[0]>tank.pos[0]-40 and a.draw_pos[0]<tank.pos[0]+40 and a.draw_pos[1]>tank.pos[1]-25 and a.draw_pos[1]<tank.pos[1]+25:
+                tank.health-=30
+
+                bomb_list.remove(a)
+            if a.draw_pos[1]>460:
+                bomb_list.remove(a)
+            if a.draw_pos[0]>800 or a.draw_pos[0]<0:
+                bomb_list.remove(a)
+        canvas.draw_text('Score: '+str(score)+' Shells: '+str(tank.shells), [10,525],20,'aqua')
+        if tank.health<1:
+            gamecondition=False
+        for a in bullet_list:
+            for b in bomb_list:
+                if a.pos[0]>b.draw_pos[0]-5 and a.pos[0]<b.draw_pos[0]+5 and a.pos[1]>b.draw_pos[1]-5 and a.pos[1]<b.draw_pos[1]+5:
+                    bullet_list.remove(a)
+                    bomb_list.remove(b)
+    else:
+        canvas.draw_text('GAME OVER',[300,250],40,'black')
+        canvas.draw_text('Score: '+str(score),[300,270],20,'black')
+        
+def restart():
+    global tank,bullet_list,enemy_list,new_con,expo_list,score,bomb_list,gamecondition
+    tank.reset()
+    gamecondition=True
+    bullet_list=[]
+    enemy_list=[]
+    expo_list=[]
+    score=0
+    bomb_list=[]
+            
+        
+           
+frame=simplegui.create_frame('Shooting game',800,530)
+timer1=simplegui.create_timer(3000,tick1)
+timer1.start()
+timer2=simplegui.create_timer(100,tick2)
+timer2.start()
+timer3=simplegui.create_timer(50,tick3)
+timer3.start()
+frame.set_keydown_handler(kd)
+frame.set_keyup_handler(ku)
+frame.set_canvas_background('aqua')
+frame.add_button('restart',restart)
+frame.set_draw_handler(draw)
+frame.start()

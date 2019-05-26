@@ -1,0 +1,40 @@
+import simplegui
+colori=['red','black','green','yellow','blue']
+position=[]
+i=2
+wid=0
+
+
+# Handler for mouse click
+def widt(w):
+    global wid
+    wid=int(w)
+def color(c):
+    global i
+    if c=='r':
+        i=0
+    elif c=='bl':
+        i=1
+    elif c=='g':
+        i=2
+    elif c=='y':
+        i=3
+    elif c=='bu':
+        i=4
+# Handler to draw on canvas
+def draw(canvas):
+    global colori,position,i,wid
+    for k in position:
+        canvas.draw_circle(k[0],k[2],1,k[1],k[1])
+def drag(pos):
+    global position
+    position.append([pos,colori[i],wid])
+# Create a frame and assign callbacks to event handlers
+frame = simplegui.create_frame("Home", 600, 600)
+frame.add_input('width',widt,40)
+frame.add_input('colour r,bl,g,y,bu',color,40)
+frame.set_mousedrag_handler(drag)
+frame.set_draw_handler(draw)
+
+# Start the frame animation
+frame.start()

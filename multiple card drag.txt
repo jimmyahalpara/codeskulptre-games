@@ -1,0 +1,34 @@
+import simplegui
+import random
+cardlist=[]
+pic=simplegui.load_image('D:/sprite images/cards2.png')
+
+def msdrag(po):
+    global cardlist
+    l=[]
+    for a in cardlist:
+        if a[1][0]>po[0]-50 and a[1][0]<po[0]+50 and a[1][1]>po[1]-67 and a[1][1]<po[1]+67:
+            l.append(cardlist.index(a))
+    try:
+        cardlist[max(l)][1]=po
+    except:
+        pass
+def insert():
+    global cardlist
+    l=random.randrange(0,13)
+    m=random.randrange(0,4)
+    cardlist.append([[50+(l*100),67+(m*134)],[400,250]])
+# Handler to draw on canvas
+def draw(canvas):
+    global cardlist
+    for a in cardlist:
+        canvas.draw_image(pic,a[0],[100,134],a[1],[100,134])
+    
+# Create a frame and assign callbacks to event handlers
+frame = simplegui.create_frame("Home", 800,500)
+frame.add_button('insert card',insert)
+frame.set_mousedrag_handler(msdrag)
+frame.set_draw_handler(draw)
+
+# Start the frame animation
+frame.start()

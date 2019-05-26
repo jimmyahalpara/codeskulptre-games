@@ -1,0 +1,67 @@
+# CodeSkulptor runs Python programs in your browser.
+# Click the upper left button to run this simple demo.
+
+# CodeSkulptor runs in Chrome 18+, Firefox 11+, and Safari 6+.
+# Some features may work in other browsers, but do not expect
+# full functionality.  It does NOT run in Internet Explorer.
+
+import simplegui
+import random
+
+pic=simplegui.load_image('D:/sprite images/cards2.png')
+# Handler for mouse click
+p1=[50,67,False]
+p2=[50,67,False]
+l1=0
+m1=0
+l2=1
+m2=2
+def restart():
+    global p1,p2,l1,l2,m1,m2
+    p1=[50,67,False]
+    p2=[50,67,False]
+    l1=0
+    m1=0
+    l2=1
+    m2=2
+def pl1start():
+    global p1,l1,m1
+    if not p1[2]:
+        l1=random.randrange(0,13)
+        m1=random.randrange(0,4)
+        p1[0]+=l1*100
+        p1[1]+=m1*134
+        p1[2]=True
+        print l1,m1,p1
+def pl2start():
+    global p2,l2,m2
+    if not p2[2]:
+        l2=random.randrange(0,13)
+        m2=random.randrange(0,4)
+        p2[0]+=l2*100
+        p2[1]+=m2*134
+        p2[2]=True
+        print l2,m2,p2
+# Handler to draw on canvas
+def draw(canvas):
+    global p1,p2,l1,l2
+    if p1[2]:
+        canvas.draw_image(pic,[p1[0],p1[1]],[100,134],[50,67],[100,134])
+    if p2[2]:
+        canvas.draw_image(pic,[p2[0],p2[1]],[100,134],[150,67],[100,134])
+    if p1[2]==True and p2[2]==True:
+        if l1>l2:
+            canvas.draw_text('player 1 won',[0,154],20,'white')
+        elif l1<l2:
+            canvas.draw_text('player 2 won',[0,154],20,'white')
+        else:
+            canvas.draw_text('draw',[0,154],20,'white')
+
+# Create a frame and assign callbacks to event handlers
+frame = simplegui.create_frame("Home", 200, 154)
+frame.set_draw_handler(draw)
+frame.add_button('player1',pl1start)
+frame.add_button('player2',pl2start)
+frame.add_button('restart',restart)
+# Start the frame animation
+frame.start()

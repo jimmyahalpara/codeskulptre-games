@@ -1,0 +1,91 @@
+import simplegui
+import math
+color=None
+width=3
+objects=[]
+draw_rect=False
+draw_line=False
+temp=[]
+draw_circle=False
+
+def draw(canvas):
+    global objects
+    for k in objects:
+        if k[0]=='rect':
+            canvas.draw_polygon([[k[1][0][0],k[1][0][1]],[k[1][0][0],k[1][1][1]],[k[1][1][0],k[1][1][1]],[k[1][1][0],k[1][0][1]]],k[2],k[3])
+        if k[0]=='circle':
+            canvas.draw_circle(k[1][0],k[1][1],k[2],k[3])
+        if k[0]=='line':
+            for a in k[1]:
+                canvas.draw_circle(a,k[2]/2,1,k[3],k[3])
+def drag(pos):
+    global temp
+    temp.append(pos)
+def process1(tem):
+    return [tem[0],tem[-1]]
+def process2(tem):
+    co=tem[0]
+    ls=tem[-1]
+    l=math.sqrt(((ls[0]-co[0])**2)+((ls[1]-co[1])**2))
+    print co,ls,l
+    return [co,l]
+def colors(c):
+    global color
+    color=c
+    print color
+def wid(w):
+    global width
+    width=int(w)
+def s_rect():
+    global color,width,objects,temp,draw_circle,draw_rect,draw_line
+    draw_rect=True
+    draw_line=False
+    draw_circle=False
+def c_rect():
+    global color,width,objects,temp,draw_circle,draw_rect,draw_line
+    if draw_rect:   
+        draw_circle=False
+        draw_rect=True
+        draw_line=False
+        objects.append(['rect',process1(temp),width,color])
+        temp=[]
+def s_circle():
+    global color,width,objects,temp,draw_circle,draw_rect,draw_line
+    draw_circle=True
+    draw_rect=False
+    draw_line=False
+def c_circle():
+    global color,width,objects,temp,draw_circle,draw_rect,draw_line
+    if draw_circle:
+        draw_circle=True
+        draw_rect=False
+        draw_line=False
+        objects.append(['circle',process2(temp),width,color])
+        temp=[]
+def s_line():
+    global color,width,objects,temp,draw_circle,draw_rect,draw_line
+    draw_circle=False
+    draw_rect=False
+    draw_line=True
+def c_line():
+    global color,width,objects,temp,draw_circle,draw_rect,draw_line
+    if draw_line:
+        draw_circle=False
+        draw_rect=False
+        draw_line=True
+        objects.append(['line',temp,width,color])
+        temp=[]
+
+frame=simplegui.create_frame('main paint',600,600)
+frame.set_draw_handler(draw)
+frame.set_canvas_background('white')
+frame.add_input('enter colour',colors,40)
+frame.add_input('enter width',wid,40)
+frame.add_button('draw_rectangle',s_rect)
+frame.add_button('confirm rectangle',c_rect)
+frame.add_button('draw circle',s_circle)
+frame.add_button('confirm circle',c_circle)
+frame.add_button('draw line',s_line)
+frame.add_button('confirm line',c_line)
+frame.set_mousedrag_handler(drag)
+frame.start()

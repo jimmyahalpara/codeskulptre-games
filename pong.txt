@@ -1,0 +1,190 @@
+
+
+import simplegui
+import random
+W=900
+H=600
+p1=[5,H/2]
+p2=[W-5,H/2]
+p1s=0
+p2s=0
+blp=[W/2,H/2]
+blsx=random.randrange(-4,4)
+if blsx==0:
+    blsx=5
+blsy=random.randrange(-3,3)
+if blsy==0:
+    blsy=5
+p1score=0
+p2score=0
+# Handler for keys
+def game_reset():
+    global blp,blsx,blsy
+    blsx=random.randrange(-5,5)
+    if blsx==0:
+        blsx=5
+    blsy=random.randrange(-5,5)
+    if blsy==5:
+        blsy=5
+    blp=[W/2,H/2]
+def kd(k):
+    global p1s,p2s
+    if simplegui.KEY_MAP['w']==k:
+        p1s-=2.5
+    if simplegui.KEY_MAP['s']==k:
+        p1s+=2.5
+
+    if simplegui.KEY_MAP['i']==k:
+        p2s-=2.5
+    if simplegui.KEY_MAP['k']==k:
+        p2s+=2.5
+        
+    
+    
+def ku(k):
+    global p1s,p2s
+    p1s=0
+    p2s=0
+# Handler to draw on canvas
+def draw(canvas):
+    global W,H,p1,p2,p1s,p2s,blp,blsx,blsy,p1score,p2score
+    canvas.draw_line([10,0],[10,H],1,'white')
+    canvas.draw_line([W/2,0],[W/2,H],1,'white')
+    canvas.draw_line([W-10,0],[W-10,H],1,'white')
+    if p1[1]+40>H:
+        p1[1]=H-40
+    if p1[1]-40<0:
+        p1[1]=40
+    if p2[1]+40>H:
+        p2[1]=H-40
+    if p2[1]-40<0:
+        p2[1]=40
+    
+    canvas.draw_line([p1[0],p1[1]+40],[p1[0],p1[1]-40],10,'red')
+    canvas.draw_line([p2[0],p2[1]+40],[p2[0],p2[1]-40],10,'red')
+    canvas.draw_circle(blp,20,1,'aqua','aqua')
+    canvas.draw_text(str(p1score),[50,50],40,'green')
+    canvas.draw_text(str(p2score),[W-50,50],40,'green')
+    
+    if blp[1]<21 or blp[1]>H-21:
+        blsy=-blsy
+
+    if blp[1]>p1[1]-40 and blp[1]<p1[1]+40 and blp[0]<31:
+        blsx=-blsx
+    if (blp[1]<p1[1]-40 or blp[1]>p1[1]+40) and blp[0]<31:
+        p2score+=1
+        game_reset()
+
+    if blp[1]>p2[1]-40 and blp[1]<p2[1]+40 and blp[0]>W-31:
+        blsx=-blsx
+    if (blp[1]<p2[1]-40 or blp[1]>p2[1]+40) and blp[0]>W-31:
+        p1score+=1
+        game_reset()
+        
+    p1[1]+=p1s
+    p2[1]+=p2s
+    blp[0]+=blsx
+    blp[1]+=blsy
+# Create a frame and assign callbacks to event handlers
+frame = simplegui.create_frame("Home", W, H)
+frame.set_keydown_handler(kd)
+frame.set_keyup_handler(ku)
+frame.set_draw_handler(draw)
+
+# Start the frame animation
+frame.start()
+
+
+import simplegui
+import random
+W=900
+H=600
+p1=[5,H/2]
+p2=[W-5,H/2]
+p1s=0
+p2s=0
+blp=[W/2,H/2]
+blsx=random.randrange(-4,4)
+if blsx==0:
+    blsx=5
+blsy=random.randrange(-3,3)
+if blsy==0:
+    blsy=5
+p1score=0
+p2score=0
+# Handler for keys
+def game_reset():
+    global blp,blsx,blsy
+    blsx=random.randrange(-5,5)
+    if blsx==0:
+        blsx=5
+    blsy=random.randrange(-5,5)
+    if blsy==5:
+        blsy=5
+    blp=[W/2,H/2]
+def kd(k):
+    global p1s,p2s
+    if simplegui.KEY_MAP['w']==k:
+        p1s-=2.5
+    if simplegui.KEY_MAP['s']==k:
+        p1s+=2.5
+
+    if simplegui.KEY_MAP['i']==k:
+        p2s-=2.5
+    if simplegui.KEY_MAP['k']==k:
+        p2s+=2.5
+        
+    
+    
+def ku(k):
+    global p1s,p2s
+    p1s=0
+    p2s=0
+# Handler to draw on canvas
+def draw(canvas):
+    global W,H,p1,p2,p1s,p2s,blp,blsx,blsy,p1score,p2score
+    canvas.draw_line([10,0],[10,H],1,'white')
+    canvas.draw_line([W/2,0],[W/2,H],1,'white')
+    canvas.draw_line([W-10,0],[W-10,H],1,'white')
+    if p1[1]+40>H:
+        p1[1]=H-40
+    if p1[1]-40<0:
+        p1[1]=40
+    if p2[1]+40>H:
+        p2[1]=H-40
+    if p2[1]-40<0:
+        p2[1]=40
+    
+    canvas.draw_line([p1[0],p1[1]+40],[p1[0],p1[1]-40],10,'red')
+    canvas.draw_line([p2[0],p2[1]+40],[p2[0],p2[1]-40],10,'red')
+    canvas.draw_circle(blp,20,1,'aqua','aqua')
+    canvas.draw_text(str(p1score),[50,50],40,'green')
+    canvas.draw_text(str(p2score),[W-50,50],40,'green')
+    
+    if blp[1]<21 or blp[1]>H-21:
+        blsy=-blsy
+
+    if blp[1]>p1[1]-40 and blp[1]<p1[1]+40 and blp[0]<31:
+        blsx=-blsx
+    if (blp[1]<p1[1]-40 or blp[1]>p1[1]+40) and blp[0]<31:
+        p2score+=1
+        game_reset()
+
+    if blp[1]>p2[1]-40 and blp[1]<p2[1]+40 and blp[0]>W-31:
+        blsx=-blsx
+    if (blp[1]<p2[1]-40 or blp[1]>p2[1]+40) and blp[0]>W-31:
+        p1score+=1
+        game_reset()
+        
+    p1[1]+=p1s
+    p2[1]+=p2s
+    blp[0]+=blsx
+    blp[1]+=blsy
+# Create a frame and assign callbacks to event handlers
+frame = simplegui.create_frame("Home", W, H)
+frame.set_keydown_handler(kd)
+frame.set_keyup_handler(ku)
+frame.set_draw_handler(draw)
+
+# Start the frame animation
+frame.start()
